@@ -1,0 +1,785 @@
+--// =========================================================
+--// 👹 REHAN HUB V2 (ALPHA EMPIRE EDITION) - FULL COMBINED & FIXED
+--// =========================================================
+
+local Players = game:GetService("Players")
+local RunService = game:GetService("RunService")
+local UserInputService = game:GetService("UserInputService")
+local TweenService = game:GetService("TweenService")
+local TextChatService = game:GetService("TextChatService")
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local TeleportService = game:GetService("TeleportService")
+local SoundService = game:GetService("SoundService")
+local Debris = game:GetService("Debris")
+local CoreGui = game:GetService("CoreGui")
+
+local player = Players.LocalPlayer
+
+pcall(function()
+    if CoreGui:FindFirstChild("REHANPAPA") then CoreGui.REHANPAPA:Destroy() end
+    if CoreGui:FindFirstChild("REHANHUB") then CoreGui.REHANHUB:Destroy() end
+    if CoreGui:FindFirstChild("REHAN_HUBEK") then CoreGui.REHAN_HUBEK:Destroy() end
+    if SoundService:FindFirstChild("EndlessKnightBGMusic") then SoundService.EndlessKnightBGMusic:Destroy() end
+end)
+
+local THEME = {
+    BG_DARK = Color3.fromRGB(8, 8, 12),
+    PANEL_BG = Color3.fromRGB(14, 14, 20),
+    ACCENT_RED = Color3.fromRGB(255, 30, 60),
+    ACCENT_GOLD = Color3.fromRGB(245, 185, 45),
+    TEXT_WHITE = Color3.fromRGB(245, 245, 250),
+    TEXT_MUTED = Color3.fromRGB(140, 140, 155),
+    STROKE_RED = Color3.fromRGB(70, 15, 25)
+}
+
+local function Create(class, props)
+    local obj = Instance.new(class)
+    for k, v in pairs(props or {}) do obj[k] = v end
+    return obj
+end
+
+local function AddCorner(parent, radius)
+    local c = Instance.new("UICorner", parent)
+    c.CornerRadius = UDim.new(0, radius)
+    return c
+end
+
+local function AddStroke(parent, color, thick, trans)
+    local s = Instance.new("UIStroke", parent)
+    s.Color = color
+    s.Thickness = thick or 1
+    s.Transparency = trans or 0
+    return s
+end
+
+local ScreenGui = Create("ScreenGui", {
+    Name = "GAURAV_HUBEK",
+    Parent = CoreGui,
+    ResetOnSpawn = false,
+    IgnoreGuiInset = true,
+    ZIndexBehavior = Enum.ZIndexBehavior.Sibling
+})
+
+_G.MaxHubConfig = {
+    CurrentTroll = nil, Spin = false, InfJump = false,
+    AntiVoid = false, AntiSit = false, AntiFling = false,
+    Spd = false, ScreenGui = ScreenGui
+}
+
+local Config = _G.MaxHubConfig
+
+_G.getChar = function() return player.Character or player.CharacterAdded:Wait() end
+_G.getRoot = function() return _G.getChar():FindFirstChild("HumanoidRootPart") end
+_G.getHum = function() return _G.getChar():FindFirstChildOfClass("Humanoid") end
+
+_G.playSound = function(soundId, vol)
+    task.spawn(function()
+        local s = Instance.new("Sound")
+        s.SoundId = soundId:find("rbxassetid://") and soundId or ("rbxassetid://" .. soundId)
+        s.Volume = vol or 5
+        s.Parent = CoreGui
+        s:Play()
+        Debris:AddItem(s, 5)
+    end)
+end
+
+_G.playSound("1842506172", 8)
+
+function _G.sendChatIntro()
+    local intro1 = [[👹 SCRIPT BY REHAN @@@@@@@@@@___@@@@@@@@@@@@@@@@@@___@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@___@@@@@@@@@@@@@@___@@@@@@@@ LOADED...]]
+    local intro2 = [[👹 REHAN SARKAR 👹 IS HERE.../💀+++++++++++++++++++++++++++++++++++++++🇦🇱🤣/REHAN SARKAR SE PANGA ?? 🗿🇦🇱]]
+    local intro3 = [[REHAN x ⛩️ ALPHA EMPIRE ⛩️ LOADED......]]
+    
+    task.spawn(function()
+        local textChannel = TextChatService and TextChatService:FindFirstChild("TextChannels") and TextChatService.TextChannels:FindFirstChild("RBXGeneral")
+        local legacyChat = ReplicatedStorage:FindFirstChild("DefaultChatSystemChatEvents") and ReplicatedStorage.DefaultChatSystemChatEvents:FindFirstChild("SayMessageRequest")
+
+        if textChannel then
+            textChannel:SendAsync(intro1) task.wait(0.6)
+            textChannel:SendAsync(intro2) task.wait(0.6)
+            textChannel:SendAsync(intro3)
+        elseif legacyChat then
+            legacyChat:FireServer(intro1, "All") task.wait(0.6)
+            legacyChat:FireServer(intro2, "All") task.wait(0.6)
+            legacyChat:FireServer(intro3, "All")
+        end
+    end)
+end
+
+_G.makeDraggable = function(frame)
+    local dragging, dragStart, startPos
+    frame.InputBegan:Connect(function(input)
+        if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+            dragging = true
+            dragStart = input.Position
+            startPos = frame.Position
+            input.Changed:Connect(function()
+                if input.UserInputState == Enum.UserInputState.End then dragging = false end
+            end)
+        end
+    end)
+    frame.InputChanged:Connect(function(input)
+        if input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch then
+            if dragging then
+                local delta = input.Position - dragStart
+                frame.Position = UDim2.new(startPos.X.Scale, startPos.X.Offset + delta.X, startPos.Y.Scale, startPos.Y.Offset + delta.Y)
+            end
+        end
+    end)
+end
+
+-- KEY GUI
+local KeyFrame = Create("Frame", {
+    Name = "KeyFrame",
+    Parent = ScreenGui,
+    Size = UDim2.fromOffset(260, 180),
+    Position = UDim2.fromScale(0.5, 0.5),
+    AnchorPoint = Vector2.new(0.5, 0.5),
+    BackgroundColor3 = Color3.fromRGB(15, 15, 15),
+    BorderSizePixel = 0,
+    Active = true,
+    ZIndex = 200
+})
+AddCorner(KeyFrame, 10)
+AddStroke(KeyFrame, Color3.fromRGB(255, 0, 0), 1.5, 0)
+_G.makeDraggable(KeyFrame)
+
+Create("TextLabel", {
+    Parent = KeyFrame,
+    Size = UDim2.new(1, 0, 0, 30),
+    Position = UDim2.fromOffset(0, 10),
+    BackgroundTransparency = 1,
+    Text = "🔑 KEY SYSTEM",
+    TextColor3 = Color3.fromRGB(255, 255, 255),
+    Font = Enum.Font.GothamBlack,
+    TextSize = 14,
+    ZIndex = 202
+})
+
+Create("TextLabel", {
+    Parent = KeyFrame,
+    Size = UDim2.new(1, 0, 0, 20),
+    Position = UDim2.fromOffset(0, 35),
+    BackgroundTransparency = 1,
+    Text = "INSTA: _rehan_sarkar76",
+    TextColor3 = Color3.fromRGB(255, 215, 0),
+    Font = Enum.Font.GothamBold,
+    TextSize = 11,
+    ZIndex = 202
+})
+
+local KeyInput = Create("TextBox", {
+    Parent = KeyFrame,
+    Size = UDim2.new(0.85, 0, 0, 32),
+    Position = UDim2.fromScale(0.075, 0.42),
+    PlaceholderText = "ENTER KEY...",
+    BackgroundColor3 = Color3.fromRGB(25, 25, 25),
+    TextColor3 = Color3.fromRGB(255, 255, 255),
+    Font = Enum.Font.GothamBold,
+    TextSize = 11,
+    ZIndex = 202
+})
+AddCorner(KeyInput, 6)
+AddStroke(KeyInput, Color3.fromRGB(60, 60, 60), 1, 0)
+
+local SubmitBtn = Create("TextButton", {
+    Parent = KeyFrame,
+    Size = UDim2.new(0.85, 0, 0, 30),
+    Position = UDim2.fromScale(0.075, 0.72),
+    BackgroundColor3 = Color3.fromRGB(200, 0, 0),
+    Text = "SUBMIT KEY",
+    TextColor3 = Color3.fromRGB(255, 255, 255),
+    Font = Enum.Font.GothamBlack,
+    TextSize = 11,
+    ZIndex = 202
+})
+AddCorner(SubmitBtn, 6)
+
+-- MAIN FRAME
+local BGMUSIC = Create("Sound", {
+    Name = "EndlessKnightBGMusic",
+    Parent = SoundService,
+    SoundId = "rbxassetid://78253720329376",
+    Volume = 0.5,
+    Looped = true
+})
+
+local NormalSize = UDim2.fromOffset(290, 190)
+local ExpandedSize = UDim2.fromOffset(400, 280)
+local IsMaximized = false
+local IsMuted = false
+
+local Main = Create("Frame", {
+    Name = "MainFrame",
+    Parent = ScreenGui,
+    AnchorPoint = Vector2.new(0.5, 0.5),
+    Position = UDim2.fromScale(0.5, 0.5),
+    Size = NormalSize,
+    BackgroundColor3 = THEME.BG_DARK,
+    BorderSizePixel = 0,
+    ClipsDescendants = true,
+    Visible = false,
+    ZIndex = 2
+})
+
+AddCorner(Main, 10)
+AddStroke(Main, THEME.ACCENT_RED, 1.2, 0.2)
+_G.MaxHubMainFrame = Main
+_G.makeDraggable(Main)
+
+Create("ImageLabel", {
+    Parent = Main,
+    Size = UDim2.fromScale(1, 1),
+    Image = "rbxassetid://6439567454",
+    ScaleType = Enum.ScaleType.Crop,
+    ImageTransparency = 0.35,
+    BorderSizePixel = 0,
+    ZIndex = 1
+})
+
+local ToggleBtn = Create("ImageButton", {
+    Name = "AlphaToggleBtn",
+    Parent = ScreenGui,
+    AnchorPoint = Vector2.new(0, 0.5),
+    Position = UDim2.new(0, 12, 0.5, 0),
+    Size = UDim2.fromOffset(45, 45),
+    BackgroundTransparency = 1,
+    BorderSizePixel = 0,
+    Image = "rbxassetid://10528567042",
+    ScaleType = Enum.ScaleType.Fit,
+    Visible = false,
+    ZIndex = 100
+})
+_G.MaxHubToggleBtn = ToggleBtn
+_G.makeDraggable(ToggleBtn)
+
+SubmitBtn.MouseButton1Click:Connect(function()
+    if KeyInput.Text == "REHANXAE" then
+        if _G.playSound then _G.playSound("139771888058836", 5) end
+        KeyFrame:Destroy()
+        ToggleBtn.Visible = true
+        Main.Visible = true
+        if _G.sendChatIntro then _G.sendChatIntro() end
+        if not BGMUSIC.IsPlaying then BGMUSIC:Play() end
+    else
+        if _G.playSound then _G.playSound("114813655835007", 5) end
+        KeyInput.Text = ""
+        KeyInput.PlaceholderText = "WRONG KEY!"
+        task.wait(1.5)
+        KeyInput.PlaceholderText = "ENTER KEY..."
+    end
+end)
+
+-- Header
+local Header = Create("Frame", {
+    Parent = Main,
+    Position = UDim2.fromOffset(6, 4),
+    Size = UDim2.new(1, -12, 0, 26),
+    BackgroundTransparency = 1,
+    ZIndex = 10
+})
+
+local LogoBox = Create("Frame", {
+    Parent = Header,
+    Position = UDim2.fromOffset(0, 1),
+    Size = UDim2.fromOffset(22, 22),
+    BackgroundColor3 = THEME.PANEL_BG,
+    BackgroundTransparency = 0.2,
+    BorderSizePixel = 0,
+    ZIndex = 11
+})
+AddCorner(LogoBox, 4)
+AddStroke(LogoBox, THEME.ACCENT_GOLD, 1, 0.3)
+
+Create("ImageLabel", {
+    Parent = LogoBox,
+    Size = UDim2.fromScale(1, 1),
+    BackgroundTransparency = 1,
+    Image = "rbxassetid://10528567042",
+    ScaleType = Enum.ScaleType.Fit,
+    ZIndex = 12
+})
+
+Create("TextLabel", {
+    Parent = Header,
+    Position = UDim2.fromOffset(28, 1),
+    Size = UDim2.fromOffset(80, 10),
+    BackgroundTransparency = 1,
+    Text = "REHAN HUB V2",
+    TextColor3 = THEME.TEXT_WHITE,
+    TextSize = 8,
+    Font = Enum.Font.GothamBlack,
+    TextXAlignment = Enum.TextXAlignment.Left,
+    ZIndex = 11
+})
+
+Create("TextLabel", {
+    Parent = Header,
+    Position = UDim2.fromOffset(28, 11),
+    Size = UDim2.fromOffset(80, 10),
+    BackgroundTransparency = 1,
+    Text = "ALPHA EMPIRE ⛩️ V2.0",
+    TextColor3 = THEME.ACCENT_GOLD,
+    TextSize = 6,
+    Font = Enum.Font.GothamBold,
+    TextXAlignment = Enum.TextXAlignment.Left,
+    ZIndex = 11
+})
+
+local CloseBtn = Create("TextButton", {
+    Parent = Header,
+    AnchorPoint = Vector2.new(1, 0),
+    Position = UDim2.new(1, 0, 0, 2),
+    Size = UDim2.fromOffset(15, 15),
+    BackgroundColor3 = Color3.fromRGB(45, 10, 18),
+    Text = "×",
+    TextColor3 = THEME.ACCENT_RED,
+    TextSize = 10,
+    Font = Enum.Font.GothamBold,
+    ZIndex = 15
+})
+AddCorner(CloseBtn, 3)
+
+local MaximizeBtn = Create("TextButton", {
+    Parent = Header,
+    AnchorPoint = Vector2.new(1, 0),
+    Position = UDim2.new(1, -18, 0, 2),
+    Size = UDim2.fromOffset(45, 15),
+    BackgroundColor3 = Color3.fromRGB(25, 25, 35),
+    Text = "ZOOM 🧿",
+    TextColor3 = THEME.TEXT_WHITE,
+    TextSize = 6,
+    Font = Enum.Font.GothamBold,
+    ZIndex = 15
+})
+AddCorner(MaximizeBtn, 3)
+
+local MuteBtn = Create("TextButton", {
+    Parent = Header,
+    AnchorPoint = Vector2.new(1, 0),
+    Position = UDim2.new(1, -66, 0, 2),
+    Size = UDim2.fromOffset(38, 15),
+    BackgroundColor3 = Color3.fromRGB(20, 20, 30),
+    Text = "🔊 MUTE",
+    TextColor3 = THEME.ACCENT_GOLD,
+    TextSize = 6,
+    Font = Enum.Font.GothamBold,
+    ZIndex = 15
+})
+AddCorner(MuteBtn, 3)
+
+local Body = Create("Frame", {
+    Parent = Main,
+    Position = UDim2.fromOffset(6, 32),
+    Size = UDim2.new(1, -12, 1, -48),
+    BackgroundTransparency = 1,
+    ZIndex = 8
+})
+
+local Sidebar = Create("ScrollingFrame", {
+    Parent = Body,
+    Size = UDim2.new(0, 72, 1, 0),
+    BackgroundColor3 = THEME.PANEL_BG,
+    BackgroundTransparency = 0.25,
+    BorderSizePixel = 0,
+    ScrollBarThickness = 1.5,
+    CanvasSize = UDim2.new(0, 0, 0, 0),
+    AutomaticCanvasSize = Enum.AutomaticSize.Y,
+    ZIndex = 9
+})
+AddCorner(Sidebar, 6)
+AddStroke(Sidebar, THEME.STROKE_RED, 1, 0.4)
+
+local SideList = Instance.new("UIListLayout", Sidebar)
+SideList.Padding = UDim.new(0, 3)
+SideList.HorizontalAlignment = Enum.HorizontalAlignment.Center
+
+local Content = Create("Frame", {
+    Parent = Body,
+    Position = UDim2.fromOffset(76, 0),
+    Size = UDim2.new(1, -76, 1, 0),
+    BackgroundColor3 = THEME.PANEL_BG,
+    BackgroundTransparency = 0.3,
+    BorderSizePixel = 0,
+    ClipsDescendants = true,
+    ZIndex = 9
+})
+AddCorner(Content, 6)
+AddStroke(Content, THEME.STROKE_RED, 1, 0.4)
+
+local StatsHUD = Create("Frame", {
+    Parent = Main,
+    Position = UDim2.new(0, 6, 1, -14),
+    Size = UDim2.new(1, -12, 0, 11),
+    BackgroundColor3 = THEME.PANEL_BG,
+    BackgroundTransparency = 0.2,
+    BorderSizePixel = 0,
+    ZIndex = 12
+})
+AddCorner(StatsHUD, 3)
+
+local FpsLabel = Create("TextLabel", {
+    Parent = StatsHUD,
+    Position = UDim2.fromOffset(4, 0),
+    Size = UDim2.fromOffset(50, 11),
+    BackgroundTransparency = 1,
+    Text = "💀 FPS: --",
+    TextColor3 = THEME.ACCENT_GOLD,
+    TextSize = 6,
+    Font = Enum.Font.GothamBold,
+    TextXAlignment = Enum.TextXAlignment.Left,
+    ZIndex = 13
+})
+
+local PlayersLabel = Create("TextLabel", {
+    Parent = StatsHUD,
+    Position = UDim2.fromOffset(60, 0),
+    Size = UDim2.fromOffset(60, 11),
+    BackgroundTransparency = 1,
+    Text = "👤 PLRS: 0",
+    TextColor3 = THEME.TEXT_WHITE,
+    TextSize = 6,
+    Font = Enum.Font.GothamBold,
+    TextXAlignment = Enum.TextXAlignment.Left,
+    ZIndex = 13
+})
+
+local TimeLabel = Create("TextLabel", {
+    Parent = StatsHUD,
+    Position = UDim2.fromOffset(130, 0),
+    Size = UDim2.fromOffset(100, 11),
+    BackgroundTransparency = 1,
+    Text = "⏱ 00:00:00 AM",
+    TextColor3 = THEME.TEXT_MUTED,
+    TextSize = 6,
+    Font = Enum.Font.GothamBold,
+    TextXAlignment = Enum.TextXAlignment.Left,
+    ZIndex = 13
+})
+
+local FrameCount = 0
+local LastCheck = tick()
+RunService.RenderStepped:Connect(function()
+    FrameCount = FrameCount + 1
+    local now = tick()
+    if now - LastCheck >= 0.5 then
+        FpsLabel.Text = "💀 FPS: " .. tostring(math.floor(FrameCount / (now - LastCheck)))
+        FrameCount = 0
+        LastCheck = now
+        PlayersLabel.Text = "👤 PLRS: " .. tostring(#Players:GetPlayers())
+        TimeLabel.Text = "⏱ " .. os.date("%I:%M:%S %p")
+    end
+end)
+
+MuteBtn.MouseButton1Click:Connect(function()
+    IsMuted = not IsMuted
+    BGMUSIC.Volume = IsMuted and 0 or 0.5
+    MuteBtn.Text = IsMuted and "🔇 UNMUTE" or "🔊 MUTE"
+    MuteBtn.TextColor3 = IsMuted and THEME.ACCENT_RED or THEME.ACCENT_GOLD
+end)
+
+MaximizeBtn.MouseButton1Click:Connect(function()
+    IsMaximized = not IsMaximized
+    TweenService:Create(Main, TweenInfo.new(0.3, Enum.EasingStyle.Quart, Enum.EasingDirection.Out), {
+        Size = IsMaximized and ExpandedSize or NormalSize
+    }):Play()
+end)
+
+ToggleBtn.MouseButton1Click:Connect(function()
+    Main.Visible = not Main.Visible
+    if Main.Visible and not BGMUSIC.IsPlaying then BGMUSIC:Play() end
+end)
+
+CloseBtn.MouseButton1Click:Connect(function() Main.Visible = false end)
+
+-- PAGES
+local function createPage()
+    local p = Create("ScrollingFrame", {
+        Parent = Content,
+        Size = UDim2.fromScale(1, 1),
+        CanvasSize = UDim2.new(0, 0, 0, 0),
+        AutomaticCanvasSize = Enum.AutomaticSize.Y,
+        BackgroundTransparency = 1,
+        BorderSizePixel = 0,
+        ScrollBarThickness = 1.5,
+        Visible = false,
+        ZIndex = 10
+    })
+    local layout = Instance.new("UIListLayout", p)
+    layout.Padding = UDim.new(0, 3)
+    layout.HorizontalAlignment = Enum.HorizontalAlignment.Center
+    return p
+end
+
+local P1, P3, P8, P11, P9 = createPage(), createPage(), createPage(), createPage(), createPage()
+local P10, P2, P4, P5, P6, P7 = createPage(), createPage(), createPage(), createPage(), createPage(), createPage()
+
+local function tab(icon, text, page)
+    local b = Create("TextButton", {
+        Parent = Sidebar,
+        Size = UDim2.new(1, -4, 0, 20),
+        BackgroundTransparency = 0.8,
+        BackgroundColor3 = Color3.fromRGB(0, 0, 0),
+        Text = icon .. " " .. text,
+        TextColor3 = THEME.ACCENT_GOLD,
+        Font = Enum.Font.GothamBold,
+        TextSize = 7,
+        ZIndex = 10
+    })
+    AddCorner(b, 3)
+    b.MouseButton1Click:Connect(function()
+        for _, v in pairs(Content:GetChildren()) do
+            if v:IsA("ScrollingFrame") then v.Visible = false end
+        end
+        page.Visible = true
+    end)
+end
+
+tab("👹", "TROLL", P1)
+tab("🌪️", "FAKEOUT", P3)
+tab("💥", "BANG", P8)
+tab("➰", "PHONK", P11)
+tab("✨", "EXTRA", P9)
+tab("🎮", "GAME", P10)
+tab("🇦🇱", "CREDITS", P2)
+tab("🎶", "MUSIC", P4)
+tab("🏴‍☠️", "SPAM", P5)
+tab("🤖", "SHIELD", P6)
+tab("⛩️", "OTHER", P7)
+P1.Visible = true
+
+local function loadScript(url)
+    task.spawn(function() pcall(function() loadstring(game:HttpGet(url))() end) end)
+end
+
+local function btn(txt, parent, func, customColor)
+    local b = Create("TextButton", {
+        Parent = parent,
+        Size = UDim2.new(1, -6, 0, 18),
+        BackgroundColor3 = customColor or THEME.PANEL_BG,
+        BackgroundTransparency = 0.2,
+        Text = txt:upper(),
+        TextColor3 = THEME.TEXT_WHITE,
+        Font = Enum.Font.GothamBold,
+        TextSize = 7,
+        ZIndex = 11
+    })
+    AddCorner(b, 3)
+    AddStroke(b, customColor or THEME.STROKE_RED, 1, 0.4)
+
+    b.MouseEnter:Connect(function() b.BackgroundColor3 = customColor or THEME.ACCENT_RED end)
+    b.MouseLeave:Connect(function() b.BackgroundColor3 = customColor or THEME.PANEL_BG end)
+    b.MouseButton1Click:Connect(function() func(b) end)
+    return b
+end
+
+-- TROLL TAB
+local targetBox = Create("TextBox", {
+    Parent = P1,
+    Size = UDim2.new(1, -6, 0, 20),
+    PlaceholderText = "⚡ TARGET NAME...",
+    BackgroundColor3 = THEME.BG_DARK,
+    TextColor3 = THEME.TEXT_WHITE,
+    Font = Enum.Font.GothamBold,
+    TextSize = 7,
+    ZIndex = 11
+})
+AddCorner(targetBox, 3)
+AddStroke(targetBox, THEME.ACCENT_GOLD, 1, 0.5)
+
+local function getT()
+    local n = targetBox.Text:lower()
+    if n == "" then return nil end
+    for _, v in pairs(Players:GetPlayers()) do 
+        if v ~= player and (v.Name:lower():find(n) or v.DisplayName:lower():find(n)) then return v end 
+    end
+end
+
+local function startTroll(mode)
+    Config.CurrentTroll = mode
+    task.spawn(function()
+        while Config.CurrentTroll == mode do
+            local t = getT()
+            local root = _G.getRoot()
+            local hum = _G.getHum()
+
+            if t and t.Character and root and hum then
+                local tRoot = t.Character:FindFirstChild("HumanoidRootPart")
+                local tHead = t.Character:FindFirstChild("Head")
+
+                if mode == "facebang" and tHead then
+                    root.CFrame = tHead.CFrame * CFrame.new(0, 0, -0.8) * CFrame.Angles(0, math.pi, 0) + tHead.CFrame.LookVector * math.sin(tick() * 25) * 0.6
+                elseif mode == "bang" and tRoot then
+                    root.CFrame = tRoot.CFrame * CFrame.new(0, 0, 1.2 + math.sin(tick() * 25) * 0.8)
+                elseif mode == "headsit" and tHead then
+                    hum.Sit = true
+                    root.CFrame = tHead.CFrame * CFrame.new(0, 1, 0)
+                elseif mode == "frontsit" and tHead then
+                    hum.Sit = true
+                    root.CFrame = tHead.CFrame * CFrame.new(0, 0.5, -1) * CFrame.Angles(0, math.pi, 0)
+                elseif mode == "annoy" and tRoot then
+                    root.CFrame = tRoot.CFrame * CFrame.new(math.random(-4, 4), math.random(-2, 4), math.random(-4, 4))
+                end
+            end
+            RunService.Heartbeat:Wait()
+        end
+    end)
+end
+
+btn("GO TO 👤", P1, function() local t = getT() local root = _G.getRoot() if t and t.Character and t.Character:FindFirstChild("HumanoidRootPart") and root then root.CFrame = t.Character.HumanoidRootPart.CFrame end end)
+btn("FACE BANG 👄", P1, function() startTroll("facebang") end)btn("SPECTATE 👁️", P1, function() local t = getT() if t and t.Character and t.Character:FindFirstChildOfClass("Humanoid") then workspace.CurrentCamera.CameraSubject = t.Character:FindFirstChildOfClass("Humanoid") end end)
+btn("BANG ⚠️", P1, function() startTroll("bang") end)
+btn("HEADSIT 👽", P1, function() startTroll("headsit") end)
+btn("FRONT SIT 💢", P1, function() startTroll("frontsit") end)
+btn("ANNOY 🍁", P1, function() startTroll("annoy") end)
+btn("STOP TROLL 💢", P1, function() Config.CurrentTroll = nil local hum = _G.getHum() if hum then hum.Sit = false workspace.CurrentCamera.CameraSubject = hum end end, Color3.fromRGB(120, 20, 30))
+
+-- FAKEOUT
+btn("🌪️ FLING", P3, function() loadScript("https://pastebin.com/raw/dGgHDVkx") end)
+
+-- BANG
+btn("🕸️ BEST BACK BANG", P8, function() loadScript("https://pastefy.app/wdF0Iubo/raw") end)
+btn("💀 BANG PANEL", P8, function() loadScript("https://pastebin.com/raw/vz2KXR3s") end)
+btn("👻 FACE BANG", P8, function() loadScript("https://pastebin.com/raw/y5S28PKH") end)
+
+-- PHONK
+local currentPlaying = nil
+local function phonkBtn(name, id)
+    local b = Create("TextButton", {
+        Parent = P11,
+        Size = UDim2.new(1, -6, 0, 18),
+        BackgroundColor3 = THEME.PANEL_BG,
+        Text = "🎵 PHONK TRACK " .. name,
+        TextColor3 = THEME.TEXT_WHITE,
+        Font = Enum.Font.GothamBold,
+        TextSize = 7,
+        ZIndex = 11
+    })
+    AddCorner(b, 3)
+    AddStroke(b, THEME.ACCENT_GOLD, 1, 0.5)
+
+    b.MouseButton1Click:Connect(function()
+        for _, v in pairs(workspace:GetChildren()) do if v:IsA("Sound") and v.Name == "PhonkSound" then v:Destroy() end end
+        local s = Instance.new("Sound", workspace)
+        s.Name = "PhonkSound"
+        s.SoundId = "rbxassetid://" .. id
+        s.Volume = 3
+        s:Play()
+        currentPlaying = id
+        s.Ended:Connect(function() if currentPlaying == id then currentPlaying = nil s:Destroy() end end)
+    end)
+end
+
+phonkBtn("1", "139435437308948")
+phonkBtn("2", "137787889626447")
+phonkBtn("3", "138864288968383")
+phonkBtn("4", "130973511966646")
+phonkBtn("5", "135674024616225")
+phonkBtn("6", "137152491110539")
+phonkBtn("7", "139606677237480")
+phonkBtn("8", "139825057894568")
+
+btn("🛑 STOP PHONK SOUND", P11, function()
+    for _, v in pairs(workspace:GetChildren()) do if v:IsA("Sound") and v.Name == "PhonkSound" then v:Destroy() end end
+    currentPlaying = nil
+end, Color3.fromRGB(150, 25, 35))
+
+-- EXTRA
+btn("AURA GLOW 🌟", P9, function() loadScript("https://pastebin.com/raw/u1ihY5R9") end)
+btn("🌪️ AUTO FAKEOUT", P9, function() loadScript("https://pastebin.com/raw/67KEqzjv") end)
+btn("👺 TELEPORT V1", P9, function() loadScript("https://pastebin.com/raw/EUSuniqAF") end)
+btn("🕸️ SPIDER MAN", P9, function() loadScript("https://pastebin.com/raw/wXH4B5UN") end)
+btn("👻 TELEPORT V2", P9, function() loadScript("https://pastebin.com/raw/216FSAFS") end)
+btn("🪓 SKY DESTROY", P9, function() loadScript("https://rawscripts.net/raw/Universal-Script-sky-destroyer-V2-AXEZZ-110640") end)
+btn("🧿 INFINITE YIELD", P9, function() loadScript("https://raw.githubusercontent.com/EdgeIY/infiniteyield/master/source") end)
+btn("🕊️ FLY PANEL", P9, function() loadScript("https://pastebin.com/raw/Fwq2iUFC") end)
+
+-- GAME
+btn("🕊️ FLAPPY BIRD", P10, function() loadScript("https://gist.githubusercontent.com/RyUkVeRtIX/4d572ba7953546f4076643b1361b8140/raw/650973258e860de79e7d2b1da188f8c8340eda9b/gistfile1.txt") end)
+btn("😄 BALL SHOOTER", P10, function() loadScript("https://gist.githubusercontent.com/RyUkVeRtIX/82b092d981e78dea2a73c33915050852/raw/6b2ffcf3fe57bf6eed4280c392fb525f74fa8647/gistfile1.txt") end)
+btn("🥀 TIC TAC TOE", P10, function() loadScript("https://gist.githubusercontent.com/RyUkVeRtIX/6b0afd8b34c3c3de44e2d00e79525505/raw/f4e992d1d36a0ec7d440c8abb3bab6bad1294038/gistfile1.txt") end)
+btn("🍬CANDY CRUSH", P10, function() loadScript("https://gist.githubusercontent.com/RyUkVeRtIX/699cd0c0513949243dfb74b678af021c/raw/1dffc93effb58a6c3e284c130d2b39efbbe42bf3/gistfile1.txt") end)
+
+-- CREDITS
+local credFrame = Create("Frame", {
+    Parent = P2,
+    Size = UDim2.new(1, -6, 0, 110),
+    BackgroundColor3 = THEME.BG_DARK,
+    BackgroundTransparency = 0.2,
+    ZIndex = 11
+})
+AddCorner(credFrame, 4)
+AddStroke(credFrame, THEME.ACCENT_GOLD, 1, 0.4)
+
+Create("TextLabel", {
+    Parent = credFrame,
+    Size = UDim2.new(1, -8, 1, -8),
+    Position = UDim2.fromOffset(4, 4),
+    BackgroundTransparency = 1,
+    RichText = true,
+    TextColor3 = THEME.TEXT_WHITE,
+    TextSize = 7,
+    Font = Enum.Font.GothamBold,
+    TextWrapped = true,
+    TextYAlignment = Enum.TextYAlignment.Top,
+    Text = [[
+<font size="9" color="#F5B92D"><b>🗿 REHAN HUB V2 🇦🇱</b></font>
+
+<font color="#FF1E3C">==========================</font>
+<font color="#F5B92D"><b>💀 OWNER:</b></font> <b>REHAN</b> (REHAN SARKAR)
+<font color="#F5B92D"><b>INSTAGRAM:</b></font> _rehan_sarkar76
+
+<font color="#FF1E3C">==========================</font>
+<font color="#F5B92D"><b>🇦🇱 CREATER:</b></font> <font color="#FF1E3C"><b>REHAN 👹</b></font>
+]],
+    ZIndex = 12
+})
+
+-- MUSIC
+btn("🎵 MUSIC PLAYER", P4, function() loadScript("https://pastebin.com/raw/Ub8em7fc") end)
+
+-- SPAM (fixed)
+btn("👹 REHAN SARKAR SPAM (🇦🇱)", P5, function() loadScript("") end)
+btn("🌚 AUTO REPLY", P5, function() loadScript("https://pastebin.com/raw/GJHtXJDP") end)
+btn("🇦🇱 OWN 1 CUSTOM SPAM", P5, function() loadScript("https://pastebin.com/raw/qUvfrm9M") end)
+btn("♣️ OWNER CUSTOM (🏴‍☠️)", P5, function() loadScript("https://pastebin.com/raw/zHGgGdpD") end)
+btn("🚩[3] TARGET SPAM", P5, function() loadScript("https://pastebin.com/raw/cegE8d1G") end)
+
+-- SHIELD
+btn("👑 ANTI-VOID: OFF", P6, function(s) Config.AntiVoid = not Config.AntiVoid s.Text = "👑 ANTI-VOID: " .. (Config.AntiVoid and "ON" or "OFF") end)
+btn("🔥 ANTI-FLING: OFF", P6, function(s) Config.AntiFling = not Config.AntiFling s.Text = "🔥 ANTI-FLING: " .. (Config.AntiFling and "ON" or "OFF") end)
+btn("🪑 ANTI-SIT: OFF", P6, function(s) Config.AntiSit = not Config.AntiSit s.Text = "🪑 ANTI-SIT: " .. (Config.AntiSit and "ON" or "OFF") end)
+btn("🛡️ ANTI AFK", P6, function() player.Idled:Connect(function() game:GetService("VirtualUser"):ClickButton2(Vector2.new()) end) end)
+btn("🛡️ ANTI BANG", P6, function() loadScript("https://pastebin.com/raw/d4r8JDXz") end)
+
+-- OTHER
+btn("🏃‍♂️ SPEED 300", P7, function() Config.Spd = not Config.Spd local hum = _G.getHum() if hum then hum.WalkSpeed = Config.Spd and 300 or 16 end end)
+btn("🔄 SPIN 300", P7, function() Config.Spin = not Config.Spin end)
+btn("👻 NO CLIP", P7, function() loadScript("https://pastebin.com/raw/5haBtdWX") end)
+btn("🚀 INF JUMP: OFF", P7, function(self) Config.InfJump = not Config.InfJump self.Text = "🚀 INF JUMP: " .. (Config.InfJump and "ON" or "OFF") end)
+btn("🛡️ LOOP", P7, function() loadScript("https://pastebin.com/raw/G2BciKKB") end)
+btn("🤟🏻 AIR WALK", P7, function() loadScript("https://pastebin.com/raw/SdgA5aZM") end)
+btn("🔄 REJOIN", P7, function() TeleportService:Teleport(game.PlaceId, player) end)
+btn("🌐 SERVER HOP", P7, function() pcall(function() local Http = game:GetService("HttpService"); local Api = "https://games.roblox.com/v1/games/"..game.PlaceId.."/servers/Public?sortOrder=Asc&limit=100"; local _Next = Http:JSONDecode(game:HttpGet(Api)); TeleportService:TeleportToPlaceInstance(game.PlaceId, _Next.data[1].id) end) end)
+btn("💢 INVISIBLE", P7, function(b) local inv = not b:GetAttribute("Invis") b:SetAttribute("Invis", inv) if player.Character then for _, part in pairs(player.Character:GetDescendants()) do if part:IsA("BasePart") or part:IsA("Decal") then part.LocalTransparencyModifier = inv and 1 or 0 end end end end)
+
+-- ENGINE LOOPS
+RunService.Stepped:Connect(function()
+    if Config.Spin then local root = _G.getRoot() if root then root.CFrame *= CFrame.Angles(0, math.rad(30), 0) end end
+end)
+
+RunService.Heartbeat:Connect(function()
+    if Config.AntiVoid then
+        local root = _G.getRoot()
+        if root and root.Position.Y < -50 then
+            root.AssemblyLinearVelocity = Vector3.new(0, 0, 0)
+            root.CFrame = CFrame.new(root.Position.X, 45, root.Position.Z)
+        end
+    end
+end)
+
+UserInputService.JumpRequest:Connect(function()
+    if Config.InfJump then local hum = _G.getHum() if hum then hum:ChangeState(Enum.HumanoidStateType.Jumping) end end
+end)
+
+print("REHAN HUB V2 LOADED SUCCESSFULLY")
